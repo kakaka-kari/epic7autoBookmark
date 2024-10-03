@@ -45,15 +45,19 @@ class worker(QtCore.QThread):
     emitMoney = QtCore.pyqtSignal(str)
     emitStone = QtCore.pyqtSignal(str)
 
+    waitTime = 1000 # ms
+    forceWaitTime = 1000 # ms
+
     def __init__(self):
         super().__init__()
 
-    def setVariable(self, startMode: int, expectNum: int, moneyNum: int, stoneNum: int, autoRestartDispatch: bool):
+    def setVariable(self, startMode: int, expectNum: int, moneyNum: int, stoneNum: int, autoRestartDispatch: bool, speed: float):
         self.startMode = startMode
         self.expectNum = expectNum
         self.moneyNum = moneyNum
         self.stoneNum = stoneNum
         self.autoRestartDispatch = autoRestartDispatch
+        self.waitTime = int(1000 / speed)
 
     def processDispatchMissionComplete(self, device, restartDispatchButton):
         if not self.autoRestartDispatch:
@@ -75,7 +79,7 @@ class worker(QtCore.QThread):
                     restartDispatchFoundResult[1],
                 )
                 
-                QtCore.QThread.sleep(1)
+                QtCore.QThread.msleep(self.waitTime)
 
                 doubleClick(
                     device,
@@ -83,7 +87,7 @@ class worker(QtCore.QThread):
                     restartDispatchFoundResult[1],
                 )
                 
-                QtCore.QThread.sleep(1)
+                QtCore.QThread.msleep(self.waitTime)
 
                 after_restartDispatch_screenshot = asarray(device.screenshot())
                 restartDispatchButtonLocationAfter = aircv.find_template(
@@ -93,7 +97,7 @@ class worker(QtCore.QThread):
                 if not restartDispatchButtonLocationAfter:
                     break
                 
-            QtCore.QThread.sleep(1)
+            QtCore.QThread.msleep(self.waitTime)
 
     def run(self):
         self.isStart.emit()
@@ -142,7 +146,7 @@ class worker(QtCore.QThread):
             refreshTime = 0
             covenantFoundTime = 0
             mysticFoundTime = 0
-
+            
             covenant = aircv.imread("./img/covenantLocation.png")
             mystic = aircv.imread("./img/mysticLocation.png")
             buyButton = aircv.imread(f"./img/buyButton-{e7_language}.png")
@@ -172,7 +176,7 @@ class worker(QtCore.QThread):
                             covenantFoundResult[1] + 40,
                         )
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
                         
                         self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -191,7 +195,7 @@ class worker(QtCore.QThread):
                                     buyButtonFoundResult[1],
                                 )
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
                                 
                                 self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -203,7 +207,7 @@ class worker(QtCore.QThread):
                                 if not buyButtonLocationAfter:
                                     break
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
 
                             if self.startMode == 1:
                                 self.expectNum -= 1
@@ -212,10 +216,10 @@ class worker(QtCore.QThread):
                             self.moneyNum = self.moneyNum - 184000
                             covenantFoundTime += 1
                             self.emitMoney.emit(str(self.moneyNum))
-
+                            
                             break
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
 
                 else:
                     print("not find covenant!")
@@ -235,7 +239,7 @@ class worker(QtCore.QThread):
                             mysticFoundResult[1] + 40,
                         )
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
                         
                         self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -254,7 +258,7 @@ class worker(QtCore.QThread):
                                     buyButtonFoundResult[1],
                                 )
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
                                 
                                 self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -266,7 +270,7 @@ class worker(QtCore.QThread):
                                 if not buyButtonLocationAfter:
                                     break
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
 
                             if self.startMode == 2:
                                 self.expectNum -= 1
@@ -278,7 +282,7 @@ class worker(QtCore.QThread):
 
                             break
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
 
                 else:
                     print("not find mystic!")
@@ -297,7 +301,7 @@ class worker(QtCore.QThread):
                             refreshButtonFoundResult[1],
                         )
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
 
                         self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -318,7 +322,7 @@ class worker(QtCore.QThread):
                                     refreshYesButtonFoundResult[1],
                                 )
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
 
                                 self.processDispatchMissionComplete(device, restartDispatchButton)
 
@@ -332,7 +336,7 @@ class worker(QtCore.QThread):
                                 if not refreshYesButtonLocation:
                                     break
 
-                                QtCore.QThread.sleep(1)
+                                QtCore.QThread.msleep(self.waitTime)
 
                             self.stoneNum = self.stoneNum - 3
                             self.emitStone.emit(str(self.stoneNum))
@@ -347,17 +351,16 @@ class worker(QtCore.QThread):
                             covenantFound = False
                             mysticFound = False
 
-                            QtCore.QThread.sleep(1)
-
+                            QtCore.QThread.msleep(self.forceWaitTime)
                             break
 
-                        QtCore.QThread.sleep(1)
+                        QtCore.QThread.msleep(self.waitTime)
 
                 else:
                     device.swipe(1400, 500, 1400, 200, 0.1)
                     needRefresh = True
 
-                    QtCore.QThread.sleep(1)
+                    QtCore.QThread.msleep(self.forceWaitTime)
                     self.processDispatchMissionComplete(device, restartDispatchButton)
 
             # finished report
@@ -408,7 +411,7 @@ class Ui_Main(object):
         self.functionTab.setFont(font)
         self.functionTab.setObjectName("functionTab")
         self.covenantInput = QtWidgets.QLineEdit(self.functionTab)
-        self.covenantInput.setGeometry(QtCore.QRect(140, 130, 70, 20))
+        self.covenantInput.setGeometry(QtCore.QRect(140, 120, 70, 20))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(12)
@@ -421,7 +424,7 @@ class Ui_Main(object):
         )
         self.covenantInput.setObjectName("covenantInput")
         self.mysticInput = QtWidgets.QLineEdit(self.functionTab)
-        self.mysticInput.setGeometry(QtCore.QRect(140, 170, 70, 20))
+        self.mysticInput.setGeometry(QtCore.QRect(140, 155, 70, 20))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(12)
@@ -494,22 +497,22 @@ class Ui_Main(object):
         self.startButton.setObjectName("startButton")
         self.startButton.clicked.connect(self.startPressEvent)
         self.covenantTimeLabel = QtWidgets.QLabel(self.functionTab)
-        self.covenantTimeLabel.setGeometry(QtCore.QRect(220, 130, 20, 20))
+        self.covenantTimeLabel.setGeometry(QtCore.QRect(220, 120, 20, 20))
         self.covenantTimeLabel.setObjectName("covenantTimeLabel")
         self.mysticTimeLabel = QtWidgets.QLabel(self.functionTab)
-        self.mysticTimeLabel.setGeometry(QtCore.QRect(220, 170, 20, 20))
+        self.mysticTimeLabel.setGeometry(QtCore.QRect(220, 155, 20, 20))
         self.mysticTimeLabel.setObjectName("mysticTimeLabel")
         self.logTextBrowser = QtWidgets.QTextBrowser(self.functionTab)
-        self.logTextBrowser.setGeometry(QtCore.QRect(40, 250, 200, 131))
+        self.logTextBrowser.setGeometry(QtCore.QRect(40, 250, 225, 141))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.logTextBrowser.setFont(font)
         self.logTextBrowser.setObjectName("logTextBrowser")
         self.stoneTimeLabel = QtWidgets.QLabel(self.functionTab)
-        self.stoneTimeLabel.setGeometry(QtCore.QRect(220, 210, 20, 20))
+        self.stoneTimeLabel.setGeometry(QtCore.QRect(220, 190, 20, 20))
         self.stoneTimeLabel.setObjectName("stoneTimeLabel")
         self.stoneInput = QtWidgets.QLineEdit(self.functionTab)
-        self.stoneInput.setGeometry(QtCore.QRect(140, 210, 70, 20))
+        self.stoneInput.setGeometry(QtCore.QRect(140, 190, 70, 20))
         font = QtGui.QFont()
         font.setFamily("微軟正黑體")
         font.setPointSize(12)
@@ -522,19 +525,44 @@ class Ui_Main(object):
         )
         self.stoneInput.setObjectName("stoneInput")
         self.autoRestartDispatchCheckbox = QtWidgets.QCheckBox(self.functionTab)
-        self.autoRestartDispatchCheckbox.setGeometry(QtCore.QRect(40, 90, 150, 21))
+        self.autoRestartDispatchCheckbox.setGeometry(QtCore.QRect(40, 85, 150, 21))
         self.autoRestartDispatchCheckbox.setObjectName("autoRestartDispatchCheckbox")
         self.autoRestartDispatchCheckbox.setChecked(False)
         self.covenantRadioButton = QtWidgets.QRadioButton(self.functionTab)
-        self.covenantRadioButton.setGeometry(QtCore.QRect(40, 130, 91, 21))
+        self.covenantRadioButton.setGeometry(QtCore.QRect(40, 120, 91, 21))
         self.covenantRadioButton.setChecked(True)
         self.covenantRadioButton.setObjectName("covenantRadioButton")
+        self.covenantRadioButton.setToolTip("欲刷取的聖約書籤次數")
         self.mysticRadioButton = QtWidgets.QRadioButton(self.functionTab)
-        self.mysticRadioButton.setGeometry(QtCore.QRect(40, 170, 91, 21))
+        self.mysticRadioButton.setGeometry(QtCore.QRect(40, 155, 91, 21))
         self.mysticRadioButton.setObjectName("mysticRadioButton")
+        self.mysticRadioButton.setToolTip("欲刷取的神秘書籤次數")
         self.stoneRadioButton = QtWidgets.QRadioButton(self.functionTab)
-        self.stoneRadioButton.setGeometry(QtCore.QRect(40, 210, 91, 21))
+        self.stoneRadioButton.setGeometry(QtCore.QRect(40, 190, 91, 21))
         self.stoneRadioButton.setObjectName("stoneRadioButton")
+        self.stoneRadioButton.setToolTip("欲使用的天空石數量")
+        self.speedLabel = QtWidgets.QLabel(self.functionTab)
+        self.speedLabel.setGeometry(QtCore.QRect(40, 220, 91, 21))
+        font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
+        font.setPointSize(12)
+        self.speedLabel.setFont(font)
+        self.speedLabel.setObjectName("speedLabel")
+        self.speedScrollBar = QtWidgets.QSlider(self.functionTab)
+        self.speedScrollBar.setOrientation(QtCore.Qt.Orientation.Horizontal)
+        self.speedScrollBar.setGeometry(QtCore.QRect(85, 220, 125, 21))
+        self.speedScrollBar.setTickInterval(10)
+        self.speedScrollBar.setValue(10)
+        self.speedScrollBar.setRange(1, 50)
+        self.speedScrollBar.setObjectName("speedScrollBar")
+        self.speedScrollBar.valueChanged.connect(lambda value: self.speedScrollBarShowLabel.setText(str(value / 10)))
+        self.speedScrollBarShowLabel = QtWidgets.QLabel(self.functionTab)
+        self.speedScrollBarShowLabel.setGeometry(QtCore.QRect(220, 220, 91, 21))
+        font = QtGui.QFont()
+        font.setFamily("微軟正黑體")
+        font.setPointSize(12)
+        self.speedScrollBarShowLabel.setFont(font)
+        self.speedScrollBarShowLabel.setObjectName("speedScrollBarShowLabel")
         self.tabWidget.addTab(self.functionTab, "")
         self.introductionTab = QtWidgets.QWidget()
         self.introductionTab.setMinimumSize(QtCore.QSize(300, 450))
@@ -595,6 +623,8 @@ class Ui_Main(object):
         self.startButton.setText(_translate("Main", "開始"))
         self.covenantTimeLabel.setText(_translate("Main", "次"))
         self.mysticTimeLabel.setText(_translate("Main", "次"))
+        self.speedLabel.setText(_translate("Main", "速度"))
+        self.speedScrollBarShowLabel.setText(_translate("Main", "1.0"))
         self.logTextBrowser.setHtml(
             _translate(
                 "Main",
@@ -659,7 +689,8 @@ class Ui_Main(object):
                 else 0
             )
             autoRestartDispatch = self.autoRestartDispatchCheckbox.isChecked()
-
+            speed = self.speedScrollBar.value() / 10
+            
             if moneyNum == 0 or stoneNum == 0:
                 self.logTextBrowser.setText("")
                 self.logTextBrowser.append("石頭或金幣輸入錯誤")
@@ -695,7 +726,7 @@ class Ui_Main(object):
                 self.startProperty(False)
                 return
 
-            self.worker.setVariable(startMode, expectNum, moneyNum, stoneNum, autoRestartDispatch)
+            self.worker.setVariable(startMode, expectNum, moneyNum, stoneNum, autoRestartDispatch, speed)
             self.worker.start()
         else:
             self.worker.terminate()
@@ -717,6 +748,7 @@ class Ui_Main(object):
         self.mysticInput.setDisabled(isDisabled)
         self.stoneInput.setDisabled(isDisabled)
         self.autoRestartDispatchCheckbox.setDisabled(isDisabled)
+        self.speedScrollBar.setDisabled(isDisabled)
 
     def startWorker(self):
         self.logTextBrowser.setText("")
