@@ -12,6 +12,7 @@ from numpy import asarray
 import aircv
 import json
 import random
+import time
 
 file = open("config.json", "r", encoding="utf-8")
 config = json.load(file)
@@ -142,7 +143,8 @@ class worker(QtCore.QThread):
             self.emitLog.emit("===== 刷商店 =====")
 
             QtCore.QThread.sleep(1)
-
+            
+            startTime = time.time()
             refreshTime = 0
             covenantFoundTime = 0
             mysticFoundTime = 0
@@ -363,6 +365,9 @@ class worker(QtCore.QThread):
                     QtCore.QThread.msleep(self.forceWaitTime)
                     self.processDispatchMissionComplete(device, restartDispatchButton)
 
+            endTime = time.time()
+            totalTime = endTime - startTime
+            
             # finished report
             self.emitLog.emit("===== 結算 =====")
             self.emitLog.emit("共花費:")
@@ -371,7 +376,7 @@ class worker(QtCore.QThread):
             self.emitLog.emit("獲得書籤:")
             self.emitLog.emit(f"聖約: {covenantFoundTime}次")
             self.emitLog.emit(f"神秘: {mysticFoundTime}次")
-
+            self.emitLog.emit(f"總共用時: {int(totalTime // 60)}分 {int(totalTime % 60)}秒")
             self.isFinish.emit()
 
         except Exception as e:
