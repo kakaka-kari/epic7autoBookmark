@@ -154,7 +154,11 @@ class worker(QtCore.QThread):
             covenantFound = False
             mysticFound = False
 
-            while self.expectNum > 0 and self.moneyNum > 280000 and self.stoneNum >= 3:
+            if self.startMode == 3:
+                self.expectNum = self.expectNum // 3
+            
+            while self.expectNum >= 0 and self.moneyNum > 280000 and self.stoneNum >= 3:                
+                
                 screenshot = asarray(device.screenshot())
 
                 covenantLocation = aircv.find_template(screenshot, covenant, 0.9)
@@ -284,6 +288,9 @@ class worker(QtCore.QThread):
                     print("not find mystic!")
                     
                 if needRefresh:
+                    if self.expectNum <= 0:
+                        break
+                    
                     refreshButtonLocation = aircv.find_template(
                         screenshot, refreshButton, 0.9
                     )
@@ -296,7 +303,6 @@ class worker(QtCore.QThread):
                             refreshButtonFoundResult[0],
                             refreshButtonFoundResult[1],
                         )
-
                         QtCore.QThread.sleep(1)
 
                         self.processDispatchMissionComplete(device, restartDispatchButton)
@@ -340,8 +346,8 @@ class worker(QtCore.QThread):
                             refreshTime += 1
 
                             if self.startMode == 3:
-                                self.expectNum -= 3
-                                self.emitLog.emit(f"剩餘次數: {int(self.expectNum/3)}次")
+                                self.expectNum -= 1
+                                self.emitLog.emit(f"剩餘次數: {int(self.expectNum)}次")
 
                             needRefresh = False
                             covenantFound = False
