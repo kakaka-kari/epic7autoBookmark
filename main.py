@@ -151,9 +151,9 @@ class worker(QtCore.QThread):
             
             covenant = aircv.imread("./img/covenantLocation.png")
             mystic = aircv.imread("./img/mysticLocation.png")
-            buyButton = aircv.imread(f"./img/buyButton-{e7_language}.png")
-            refreshButton = aircv.imread(f"./img/refreshButton-{e7_language}.png")
-            refreshYesButton = aircv.imread(f"./img/refreshYesButton-{e7_language}.png")
+            buyButton = aircv.imread(f"./img/v2/buyButton-{e7_language}.png")
+            refreshButton = aircv.imread(f"./img/v2/refreshButton-{e7_language}.png")
+            refreshYesButton = aircv.imread(f"./img/v2/refreshYesButton-{e7_language}.png")
             restartDispatchButton = aircv.imread(f"./img/restartDispatchButton-{e7_language}.png")
             
             needRefresh = False
@@ -188,8 +188,9 @@ class worker(QtCore.QThread):
 
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
-                            buy_screenshot, buyButton, 0.9
+                            buy_screenshot, buyButton, 0.85
                         )
+                        # print("buyButtonLocation: ", buyButtonLocation)
 
                         if buyButtonLocation:
                             buyButtonFoundResult: tuple = buyButtonLocation["result"]
@@ -251,7 +252,7 @@ class worker(QtCore.QThread):
 
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
-                            buy_screenshot, buyButton, 0.9
+                            buy_screenshot, buyButton, 0.85
                         )
 
                         if buyButtonLocation:
@@ -298,8 +299,10 @@ class worker(QtCore.QThread):
                         break
                     
                     refreshButtonLocation = aircv.find_template(
-                        screenshot, refreshButton, 0.9
+                        screenshot, refreshButton, 0.7
                     )
+                    # print("refresh location:", refreshButtonLocation)
+                    
                     while True:
                         refreshButtonFoundResult: tuple = refreshButtonLocation[
                             "result"
@@ -316,8 +319,9 @@ class worker(QtCore.QThread):
 
                         confirm_screenshot = asarray(device.screenshot())
                         refreshYesButtonLocation = aircv.find_template(
-                            confirm_screenshot, refreshYesButton, 0.9
+                            confirm_screenshot, refreshYesButton, 0.85
                         )
+                        # print("refreshYesButtonLocation: ", refreshYesButtonLocation)
 
                         if refreshYesButtonLocation:
                             refreshYesButtonFoundResult: tuple = (
