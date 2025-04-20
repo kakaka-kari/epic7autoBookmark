@@ -60,46 +60,6 @@ class worker(QtCore.QThread):
         self.autoRestartDispatch = autoRestartDispatch
         self.waitTime = int(1000 / speed)
 
-    def processDispatchMissionComplete(self, device, restartDispatchButton):
-        if not self.autoRestartDispatch:
-            return
-        
-        screenshot = asarray(device.screenshot())
-        condifence = 0.75
-        restartDispatchButtonLocation = aircv.find_template(screenshot, restartDispatchButton, condifence)
-        
-        if restartDispatchButtonLocation:
-            print("dispatch mission completed!")
-            self.emitLog.emit("重新進行派遣任務")
-            
-            while True:
-                restartDispatchFoundResult: tuple = restartDispatchButtonLocation["result"]
-                doubleClick(
-                    device,
-                    restartDispatchFoundResult[0],
-                    restartDispatchFoundResult[1],
-                )
-                
-                QtCore.QThread.msleep(self.waitTime)
-
-                doubleClick(
-                    device,
-                    restartDispatchFoundResult[0],
-                    restartDispatchFoundResult[1],
-                )
-                
-                QtCore.QThread.msleep(self.waitTime)
-
-                after_restartDispatch_screenshot = asarray(device.screenshot())
-                restartDispatchButtonLocationAfter = aircv.find_template(
-                    after_restartDispatch_screenshot, restartDispatchButton, condifence
-                )
-                
-                if not restartDispatchButtonLocationAfter:
-                    break
-                
-            QtCore.QThread.msleep(self.waitTime)
-
     def run(self):
         self.isStart.emit()
 
@@ -183,8 +143,6 @@ class worker(QtCore.QThread):
                         )
 
                         QtCore.QThread.msleep(self.waitTime)
-                        
-                        self.processDispatchMissionComplete(device, restartDispatchButton)
 
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
@@ -204,8 +162,6 @@ class worker(QtCore.QThread):
 
                                 QtCore.QThread.msleep(self.waitTime)
                                 
-                                self.processDispatchMissionComplete(device, restartDispatchButton)
-
                                 after_buy_screenshot = asarray(device.screenshot())
                                 buyButtonLocationAfter = aircv.find_template(
                                     after_buy_screenshot, buyButton, 0.9, True
@@ -248,8 +204,6 @@ class worker(QtCore.QThread):
 
                         QtCore.QThread.msleep(self.waitTime)
                         
-                        self.processDispatchMissionComplete(device, restartDispatchButton)
-
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
                             buy_screenshot, buyButton, 0.85
@@ -267,8 +221,6 @@ class worker(QtCore.QThread):
 
                                 QtCore.QThread.msleep(self.waitTime)
                                 
-                                self.processDispatchMissionComplete(device, restartDispatchButton)
-
                                 after_buy_screenshot = asarray(device.screenshot())
                                 buyButtonLocationAfter = aircv.find_template(
                                     after_buy_screenshot, buyButton, 0.9, True
@@ -315,8 +267,6 @@ class worker(QtCore.QThread):
 
                         QtCore.QThread.msleep(self.waitTime)
 
-                        self.processDispatchMissionComplete(device, restartDispatchButton)
-
                         confirm_screenshot = asarray(device.screenshot())
                         refreshYesButtonLocation = aircv.find_template(
                             confirm_screenshot, refreshYesButton, 0.85
@@ -336,8 +286,6 @@ class worker(QtCore.QThread):
                                 )
 
                                 QtCore.QThread.msleep(self.waitTime)
-
-                                self.processDispatchMissionComplete(device, restartDispatchButton)
 
                                 after_click_yes_screenshot = asarray(
                                     device.screenshot()
@@ -374,7 +322,6 @@ class worker(QtCore.QThread):
                     needRefresh = True
 
                     QtCore.QThread.msleep(self.forceWaitTime)
-                    self.processDispatchMissionComplete(device, restartDispatchButton)
 
             endTime = time.time()
             totalTime = endTime - startTime
@@ -544,6 +491,7 @@ class Ui_Main(object):
         self.autoRestartDispatchCheckbox.setGeometry(QtCore.QRect(40, 85, 150, 21))
         self.autoRestartDispatchCheckbox.setObjectName("autoRestartDispatchCheckbox")
         self.autoRestartDispatchCheckbox.setChecked(False)
+        self.autoRestartDispatchCheckbox.setDisabled(True)
         self.covenantRadioButton = QtWidgets.QRadioButton(self.functionTab)
         self.covenantRadioButton.setGeometry(QtCore.QRect(40, 120, 91, 21))
         self.covenantRadioButton.setChecked(True)
@@ -763,7 +711,7 @@ class Ui_Main(object):
         self.covenantInput.setDisabled(isDisabled)
         self.mysticInput.setDisabled(isDisabled)
         self.stoneInput.setDisabled(isDisabled)
-        self.autoRestartDispatchCheckbox.setDisabled(isDisabled)
+        self.autoRestartDispatchCheckbox.setDisabled(True)
         self.speedScrollBar.setDisabled(isDisabled)
 
     def startWorker(self):
