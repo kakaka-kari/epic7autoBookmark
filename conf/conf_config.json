@@ -1,0 +1,8 @@
+{
+    "covenantLocation": 0.9,
+    "mysticLocation": 0.9,
+    "refreshButtonLocation": 0.5,
+    "refreshYesButtonLocation": 0.85,
+    "buyButtonLocation": 0.70,
+    "buyButtonLocationAfter": 0.9
+}

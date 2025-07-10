@@ -19,6 +19,12 @@ config = json.load(file)
 adb_addr = config["adb_addr"]
 e7_language = config["e7_language"]
 
+conf_config = json.load(open("conf/conf_config.json", "r", encoding="utf-8"))
+
+
+def log_error(error_message):
+    with open("error.txt", "a", encoding="utf-8") as f:
+        f.write({error_message} + "\n")
 
 def pointOffset(point):
     x = int(random.uniform(point.x - 2, point.x + 2))
@@ -127,7 +133,7 @@ class worker(QtCore.QThread):
                 
                 screenshot = asarray(device.screenshot())
 
-                covenantLocation = aircv.find_template(screenshot, covenant, 0.9)
+                covenantLocation = aircv.find_template(screenshot, covenant, conf_config["covenantLocation"])
                 if covenantLocation and (not covenantFound):
                     covenantFound = True
 
@@ -146,7 +152,7 @@ class worker(QtCore.QThread):
 
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
-                            buy_screenshot, buyButton, 0.85
+                            buy_screenshot, buyButton, conf_config["buyButtonLocation"]
                         )
                         # print("buyButtonLocation: ", buyButtonLocation)
 
@@ -164,7 +170,7 @@ class worker(QtCore.QThread):
                                 
                                 after_buy_screenshot = asarray(device.screenshot())
                                 buyButtonLocationAfter = aircv.find_template(
-                                    after_buy_screenshot, buyButton, 0.9, True
+                                    after_buy_screenshot, buyButton, conf_config["buyButtonLocationAfter"], True
                                 )
 
                                 if not buyButtonLocationAfter:
@@ -187,7 +193,7 @@ class worker(QtCore.QThread):
                 else:
                     print("not find covenant!")
 
-                mysticLocation = aircv.find_template(screenshot, mystic, 0.9)
+                mysticLocation = aircv.find_template(screenshot, mystic, conf_config["mysticLocation"])
                 if mysticLocation and (not mysticFound):
                     mysticFound = True
 
@@ -206,7 +212,7 @@ class worker(QtCore.QThread):
                         
                         buy_screenshot = asarray(device.screenshot())
                         buyButtonLocation = aircv.find_template(
-                            buy_screenshot, buyButton, 0.85
+                            buy_screenshot, buyButton, conf_config["buyButtonLocation"]
                         )
 
                         if buyButtonLocation:
@@ -223,7 +229,7 @@ class worker(QtCore.QThread):
                                 
                                 after_buy_screenshot = asarray(device.screenshot())
                                 buyButtonLocationAfter = aircv.find_template(
-                                    after_buy_screenshot, buyButton, 0.9, True
+                                    after_buy_screenshot, buyButton, conf_config["buyButtonLocationAfter"], True
                                 )
 
                                 if not buyButtonLocationAfter:
@@ -251,7 +257,7 @@ class worker(QtCore.QThread):
                         break
                     
                     refreshButtonLocation = aircv.find_template(
-                        screenshot, refreshButton, 0.7
+                        screenshot, refreshButton, conf_config["refreshButtonLocation"]
                     )
                     # print("refresh location:", refreshButtonLocation)
                     
@@ -269,7 +275,7 @@ class worker(QtCore.QThread):
 
                         confirm_screenshot = asarray(device.screenshot())
                         refreshYesButtonLocation = aircv.find_template(
-                            confirm_screenshot, refreshYesButton, 0.85
+                            confirm_screenshot, refreshYesButton, conf_config["refreshYesButtonLocation"]
                         )
                         # print("refreshYesButtonLocation: ", refreshYesButtonLocation)
 
@@ -291,7 +297,7 @@ class worker(QtCore.QThread):
                                     device.screenshot()
                                 )
                                 refreshYesButtonLocation = aircv.find_template(
-                                    after_click_yes_screenshot, refreshYesButton, 0.9
+                                    after_click_yes_screenshot, refreshYesButton, conf_config["refreshYesButtonLocation"]
                                 )
 
                                 if not refreshYesButtonLocation:
@@ -340,6 +346,7 @@ class worker(QtCore.QThread):
         except Exception as e:
             print(e)
             # self.emitLog.emit(str(e))
+            # log_error(str(e))
             self.isError.emit()
 
 
