@@ -43,9 +43,9 @@ adb功能在設定=>進階=>Android調試橋(ADB)，勾選後會看到路徑。
 4. 之前的版本用圖像辨識，而這個版本走的是android adb，已經不會搶滑鼠了，甚至可以縮小放著。
 5. .exe是用pyinstaller包的，有安全疑慮的話可以自己打包 `pyinstaller -F -w -i main.ico main.py`。
 
-## 三、特別感謝
-
-Raven9527 - 自動點擊派遣功能
+## 三、貢獻者
+- [steven010116](https://github.com/steven010116) - 原作者
+- [kakaka-kari](https://github.com/kakaka-kari) - 手動提前結束時，也產生結算報告
 
 ### 四、更新履歷
 ##### 2025/4/21: 第六史詩改版:
@@ -54,3 +54,6 @@ Raven9527 - 自動點擊派遣功能
 
 ##### 2025/7/10: 湖畔魔女泰妮布里雅改版
 1. 調整辨識程度 (官方可能微調UI導致辨識不到購買書籤的按鈕，因此做出調整)
+
+#### 2025/8/19: 七周年紀念Part2改版:
+1. 手動提前結束時，也產生結算報告 (特別感謝[kakaka-kari](https://github.com/kakaka-kari))
