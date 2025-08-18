@@ -57,6 +57,29 @@ class worker(QtCore.QThread):
 
     def __init__(self):
         super().__init__()
+        self.refreshTime = 0
+        self.covenantFoundTime = 0
+        self.mysticFoundTime = 0
+        self.startTime = 0
+
+    def reportSummary(self):
+        endTime = time.time()
+        totalTime = endTime - self.startTime
+        self.emitLog.emit("===== 結算 =====")
+        self.emitLog.emit("共花費:")
+        self.emitLog.emit(f"天空石: {self.refreshTime*3}個")
+        self.emitLog.emit(f"金幣: {self.covenantFoundTime*184000+self.mysticFoundTime*280000}元")
+        self.emitLog.emit("獲得書籤:")
+        self.emitLog.emit(f"聖約: {self.covenantFoundTime}次")
+        self.emitLog.emit(f"神秘: {self.mysticFoundTime}次")
+        self.emitLog.emit(f"總共用時: {int(totalTime // 60)}分 {int(totalTime % 60)}秒")
+
+    def __init__(self):
+        super().__init__()
+        self.refreshTime = 0
+        self.covenantFoundTime = 0
+        self.mysticFoundTime = 0
+        self.startTime = 0
 
     def setVariable(self, startMode: int, expectNum: int, moneyNum: int, stoneNum: int, autoRestartDispatch: bool, speed: float):
         self.startMode = startMode
@@ -110,10 +133,10 @@ class worker(QtCore.QThread):
 
             QtCore.QThread.sleep(1)
             
-            startTime = time.time()
-            refreshTime = 0
-            covenantFoundTime = 0
-            mysticFoundTime = 0
+            self.startTime = time.time()
+            self.refreshTime = 0
+            self.covenantFoundTime = 0
+            self.mysticFoundTime = 0
             
             covenant = aircv.imread("./img/covenantLocation.png")
             mystic = aircv.imread("./img/mysticLocation.png")
@@ -183,7 +206,7 @@ class worker(QtCore.QThread):
                                 self.emitLog.emit(f"剩餘次數: {self.expectNum}次")
 
                             self.moneyNum = self.moneyNum - 184000
-                            covenantFoundTime += 1
+                            self.covenantFoundTime += 1
                             self.emitMoney.emit(str(self.moneyNum))
                             
                             break
@@ -242,7 +265,7 @@ class worker(QtCore.QThread):
                                 self.emitLog.emit(f"剩餘次數: {self.expectNum}次")
 
                             self.moneyNum = self.moneyNum - 280000
-                            mysticFoundTime += 1
+                            self.mysticFoundTime += 1
                             self.emitMoney.emit(str(self.moneyNum))
 
                             break
@@ -308,7 +331,7 @@ class worker(QtCore.QThread):
                             self.stoneNum = self.stoneNum - 3
                             self.emitStone.emit(str(self.stoneNum))
 
-                            refreshTime += 1
+                            self.refreshTime += 1
 
                             if self.startMode == 3:
                                 self.expectNum -= 1
@@ -329,18 +352,7 @@ class worker(QtCore.QThread):
 
                     QtCore.QThread.msleep(self.forceWaitTime)
 
-            endTime = time.time()
-            totalTime = endTime - startTime
-            
-            # finished report
-            self.emitLog.emit("===== 結算 =====")
-            self.emitLog.emit("共花費:")
-            self.emitLog.emit(f"天空石: {refreshTime*3}個")
-            self.emitLog.emit(f"金幣: {covenantFoundTime*184000+mysticFoundTime*280000}元")
-            self.emitLog.emit("獲得書籤:")
-            self.emitLog.emit(f"聖約: {covenantFoundTime}次")
-            self.emitLog.emit(f"神秘: {mysticFoundTime}次")
-            self.emitLog.emit(f"總共用時: {int(totalTime // 60)}分 {int(totalTime % 60)}秒")
+            self.reportSummary()
             self.isFinish.emit()
 
         except Exception as e:
@@ -700,6 +712,8 @@ class Ui_Main(object):
             self.worker.setVariable(startMode, expectNum, moneyNum, stoneNum, autoRestartDispatch, speed)
             self.worker.start()
         else:
+            # 在終止前呼叫 reportSummary
+            self.worker.reportSummary()
             self.worker.terminate()
             self.logTextBrowser.append("===== 停止 =====")
             self.startProperty(False)
